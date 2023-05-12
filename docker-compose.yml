@@ -1,0 +1,41 @@
+version: '3.7'
+services:
+  users_db:
+    image: postgres:14.7
+    environment:
+      - POSTGRES_USER=admin
+      - POSTGRES_PASSWORD=admin1234
+      - POSTGRES_DB=users
+    ports:
+      - "5432:5432"
+  usersapp:
+    image: igorpavlyushchik/users-application:1.0.0
+    environment:
+      - DB_URL=jdbc:postgresql://users_db:5432/users
+      - DB_USERNAME=admin
+      - DB_PASSWORD=admin1234
+    ports:
+      - "8081:8081"
+    depends_on:
+      - users_db
+
+  posts_db:
+    image: postgres:14.7
+    environment:
+      - POSTGRES_USER=admin
+      - POSTGRES_PASSWORD=admin1234
+      - POSTGRES_DB=posts
+    ports:
+      - "5433:5432"
+  posts_app:
+    image: igorpavlyushchik/posts-application:1.0.0
+    environment:
+      - DB_URL=jdbc:postgresql://posts_db:5432/posts
+      - DB_USERNAME=admin
+      - DB_PASSWORD=admin1234
+      - USER_URL=http://usersapp:8081/users/{id}/{increment}
+    ports:
+      - "8082:8082"
+    depends_on:
+      - posts_db
+      - usersapp
