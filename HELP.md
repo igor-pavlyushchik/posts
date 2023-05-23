@@ -1,30 +1,38 @@
 # Getting Started
-just run:
-docker-compose up
+To run locally with k8s:
+from k8s folder run to start/delete:
+kubectl apply -f manifest.yaml
+kubectl delete -f manifest.yaml
 
-GET localhost:8081/greeting
-POST localhost:8081/users
+to check:
+kubectl get all -n=k8s-program
+kubectl describe service postsapp -n=k8s-program
+
+to test:
+
+GET localhost:32315/greeting
+POST localhost:32315/users
 {
-"userName": "some-username docker plus"
+"userName": "some-username k8s 4"
 }
-GET http://localhost:8081/users/1
-PUT http://localhost:8081/users/1
+GET http://localhost:32315/users/1
+PUT http://localhost:32315/users/1
 {
-"userName": "new-username docker2"
+"userName": "new-username k8s2"
 }
-PUT http://localhost:8081/users/1/1
-GET localhost:8082/greeting
-POST localhost:8082/posts
+PUT http://localhost:32315/users/1/1
+GET localhost:32316/greeting
+POST localhost:32316/posts
 {
 "authorId": 1,
 "text": "Hi friends, I recently watched amazing movie at the cinema01"
 }
-GET localhost:8082/posts/1
-PUT localhost:8082/posts/1
+GET localhost:32316/posts/1
+PUT localhost:32316/posts/1
 {
 "text": "Hi friends, I recently watched amazing movie at the cinema06b"
 }
-DELETE localhost:8082/posts/1
+DELETE localhost:32316/posts/1
 
 
 

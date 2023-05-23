@@ -1,0 +1,190 @@
+apiVersion: v1
+kind: List
+items:
+  - apiVersion: v1
+    kind: Namespace
+    metadata:
+      name: k8s-program
+  - apiVersion: v1
+    kind: Service
+    metadata:
+      name: usersdb
+      namespace: k8s-program
+    spec:
+      type: NodePort
+      selector:
+        app: usersdb-pod
+      ports:
+        - port: 5432
+  - apiVersion: v1
+    kind: ConfigMap
+    metadata:
+      name: db-secret-credentials
+      namespace: k8s-program
+      labels:
+        app: usersdb-pod
+    data:
+      # User DB
+      POSTGRES_DB: "users"
+      # Db user
+      POSTGRES_USER: "admin"
+      # Db password
+      POSTGRES_PASSWORD: "admin1234"
+  - apiVersion: apps/v1
+    kind: Deployment
+    metadata:
+      name: usersdb-pod
+      namespace: k8s-program
+    spec:
+      selector:
+        matchLabels:
+          app: usersdb-pod
+      replicas: 1
+      template:
+        metadata:
+          labels:
+            app: usersdb-pod
+        spec:
+          containers:
+            - name: usersdb-pod
+              image: postgres:14.7
+              ports:
+              - containerPort: 5432
+              envFrom:
+                - configMapRef:
+                    name: db-secret-credentials
+  - apiVersion: v1
+    kind: Service
+    metadata:
+      name: usersapp
+      namespace: k8s-program
+    spec:
+      type: NodePort
+      selector:
+        app: usersapp-pod
+      ports:
+        - protocol: "TCP"
+          port: 8081
+          targetPort: 8081
+          nodePort: 32315
+  - apiVersion: apps/v1
+    kind: Deployment
+    metadata:
+      name: usersapp-pod
+      namespace: k8s-program
+    spec:
+      selector:
+        matchLabels:
+          app: usersapp-pod
+      replicas: 2
+      template:
+        metadata:
+          labels:
+            app: usersapp-pod
+            owner: igorpavlyushchik
+        spec:
+          containers:
+            - name: usersapp-container
+              image: igorpavlyushchik/users-application:1.0.0
+              ports:
+                - containerPort: 8081
+              env:
+                - name: DB_URL
+                  value: "jdbc:postgresql://usersdb:5432/users"
+                - name: DB_USERNAME
+                  value: "admin"
+                - name: DB_PASSWORD
+                  value: "admin1234"
+  - apiVersion: v1
+    kind: Service
+    metadata:
+      name: postsdb
+      namespace: k8s-program
+    spec:
+      type: NodePort
+      selector:
+        app: postsdb-pod
+      ports:
+        - port: 5433
+          targetPort: 5432
+  - apiVersion: v1
+    kind: ConfigMap
+    metadata:
+      name: db-secret-credentials-posts
+      namespace: k8s-program
+      labels:
+        app: postsdb-pod
+    data:
+      # User DB
+      POSTGRES_DB: "posts"
+      # Db user
+      POSTGRES_USER: "admin"
+      # Db password
+      POSTGRES_PASSWORD: "admin1234"
+  - apiVersion: apps/v1
+    kind: Deployment
+    metadata:
+      name: postsdb-pod
+      namespace: k8s-program
+    spec:
+      selector:
+        matchLabels:
+          app: postsdb-pod
+      replicas: 1
+      template:
+        metadata:
+          labels:
+            app: postsdb-pod
+        spec:
+          containers:
+            - name: postsdb-pod
+              image: postgres:14.7
+              ports:
+                - containerPort: 5432
+              envFrom:
+                - configMapRef:
+                    name: db-secret-credentials-posts
+  - apiVersion: v1
+    kind: Service
+    metadata:
+      name: postsapp
+      namespace: k8s-program
+    spec:
+      type: NodePort
+      selector:
+        app: postsapp-pod
+      ports:
+        - protocol: "TCP"
+          port: 8082
+          targetPort: 8082
+          nodePort: 32316
+  - apiVersion: apps/v1
+    kind: Deployment
+    metadata:
+      name: postsapp-pod
+      namespace: k8s-program
+    spec:
+      selector:
+        matchLabels:
+          app: postsapp-pod
+      replicas: 2
+      template:
+        metadata:
+          labels:
+            app: postsapp-pod
+            owner: igorpavlyushchik
+        spec:
+          containers:
+            - name: postsapp-container
+              image: igorpavlyushchik/posts-application:1.0.0
+              ports:
+                - containerPort: 8082
+              env:
+                - name: DB_URL
+                  value: "jdbc:postgresql://postsdb:5433/posts"
+                - name: DB_USERNAME
+                  value: "admin"
+                - name: DB_PASSWORD
+                  value: "admin1234"
+                - name: USER_URL
+                  value: "http://usersapp:8081/users/{id}/{increment}"
