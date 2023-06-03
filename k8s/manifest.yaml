@@ -17,19 +17,16 @@ items:
       ports:
         - port: 5432
   - apiVersion: v1
-    kind: ConfigMap
+    kind: Secret
     metadata:
-      name: db-secret-credentials
+      name: users-db-secret
       namespace: k8s-program
       labels:
         app: usersdb-pod
     data:
-      # User DB
-      POSTGRES_DB: "users"
-      # Db user
-      POSTGRES_USER: "admin"
-      # Db password
-      POSTGRES_PASSWORD: "admin1234"
+      POSTGRES_DB: dXNlcnM=
+      POSTGRES_USER: YWRtaW4=
+      POSTGRES_PASSWORD: YWRtaW4xMjM0
   - apiVersion: apps/v1
     kind: StatefulSet
     metadata:
@@ -52,8 +49,8 @@ items:
               ports:
                 - containerPort: 5432
               envFrom:
-                - configMapRef:
-                    name: db-secret-credentials
+                - secretRef:
+                    name: users-db-secret
               volumeMounts:
                 - mountPath: "/var/lib/postgresql/data"
                   name: pvc-users-storage
@@ -81,6 +78,17 @@ items:
           port: 8081
           targetPort: 8081
           nodePort: 32315
+  - apiVersion: v1
+    kind: ConfigMap
+    metadata:
+      name: users-app-configmap
+      namespace: k8s-program
+      labels:
+        app: usersapp-pod
+    data:
+      DB_URL: "jdbc:postgresql://usersdb:5432/users"
+      DB_USERNAME: "admin"
+      DB_PASSWORD: "admin1234"
   - apiVersion: apps/v1
     kind: Deployment
     metadata:
@@ -102,13 +110,9 @@ items:
               image: igorpavlyushchik/users-application:1.0.0
               ports:
                 - containerPort: 8081
-              env:
-                - name: DB_URL
-                  value: "jdbc:postgresql://usersdb:5432/users"
-                - name: DB_USERNAME
-                  value: "admin"
-                - name: DB_PASSWORD
-                  value: "admin1234"
+              envFrom:
+                - configMapRef:
+                    name: users-app-configmap
   - apiVersion: v1
     kind: Service
     metadata:
@@ -122,19 +126,16 @@ items:
         - port: 5432
           targetPort: 5432
   - apiVersion: v1
-    kind: ConfigMap
+    kind: Secret
     metadata:
-      name: db-secret-credentials-posts
+      name: posts-db-secret
       namespace: k8s-program
       labels:
         app: postsdb-pod
     data:
-      # User DB
-      POSTGRES_DB: "posts"
-      # Db user
-      POSTGRES_USER: "admin"
-      # Db password
-      POSTGRES_PASSWORD: "admin1234"
+      POSTGRES_DB: cG9zdHM=
+      POSTGRES_USER: YWRtaW4=
+      POSTGRES_PASSWORD: YWRtaW4xMjM0
   - apiVersion: apps/v1
     kind: StatefulSet
     metadata:
@@ -157,8 +158,8 @@ items:
               ports:
                 - containerPort: 5432
               envFrom:
-                - configMapRef:
-                    name: db-secret-credentials-posts
+                - secretRef:
+                    name: posts-db-secret
               volumeMounts:
                 - mountPath: "/var/lib/postgresql/data"
                   name: pvc-posts-storage
@@ -186,6 +187,17 @@ items:
           port: 8082
           targetPort: 8082
           nodePort: 32316
+  - apiVersion: v1
+    kind: ConfigMap
+    metadata:
+      name: posts-app-configmap
+      namespace: k8s-program
+      labels:
+        app: postsapp-pod
+    data:
+      DB_URL: "jdbc:postgresql://postsdb:5432/posts"
+      DB_USERNAME: "admin"
+      DB_PASSWORD: "admin1234"
   - apiVersion: apps/v1
     kind: Deployment
     metadata:
@@ -207,12 +219,9 @@ items:
               image: igorpavlyushchik/posts-application:1.0.0
               ports:
                 - containerPort: 8082
+              envFrom:
+                - configMapRef:
+                    name: posts-app-configmap
               env:
-                - name: DB_URL
-                  value: "jdbc:postgresql://postsdb:5432/posts"
-                - name: DB_USERNAME
-                  value: "admin"
-                - name: DB_PASSWORD
-                  value: "admin1234"
                 - name: USER_URL
                   value: "http://usersapp:8081/users/{id}/{increment}"

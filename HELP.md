@@ -41,6 +41,19 @@ for info:
 docker build -t igorpavlyushchik/posts-application:1.0.0 ./
 docker push igorpavlyushchik/posts-application:1.0.0
 
+# Generate secret values:
+~ $ echo -n 'users' | base64
+dXNlcnM=
+~ $ echo -n 'admin' | base64
+YWRtaW4=
+~ $ echo -n 'admin1234' | base64
+YWRtaW4xMjM0
+
+k8s $ echo -n 'posts' | base64
+cG9zdHM=
+
+### Module 3 Sub-task 1: Secrets and config-maps
+Add sql scripts to init databases (create tables) to config maps - not added as tables generated with JPA
 
 ### Reference Documentation
 For further reference, please consider the following sections:
