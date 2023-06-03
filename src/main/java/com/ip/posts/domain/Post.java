@@ -1,6 +1,5 @@
 package com.ip.posts.domain;
 
-import java.time.Clock;
 import java.time.LocalDate;
 import java.util.Objects;
 
@@ -29,12 +28,14 @@ public class Post {
     @Column
     private LocalDate date;
 
+    @Column String topic;
+
     @PrePersist
     private void onCreate() {
         date = LocalDate.now();
     }
 
-    public Post(final Integer id, final Integer authorId, final String text, final LocalDate date) {
+    public Post(final Integer id, final Integer authorId, final String text, final LocalDate date, final String topic) {
         this.id = id;
         this.authorId = authorId;
         this.text = text;
@@ -76,6 +77,14 @@ public class Post {
         this.date = date;
     }
 
+    public String getTopic() {
+        return this.topic;
+    }
+
+    public void setTopic(final String topic) {
+        this.topic = topic;
+    }
+
     @Override
     public boolean equals(final Object o) {
         if (this == o) return true;
@@ -86,7 +95,8 @@ public class Post {
         if (!Objects.equals(id, post.id)) return false;
         if (!Objects.equals(authorId, post.authorId)) return false;
         if (!Objects.equals(text, post.text)) return false;
-        return Objects.equals(date, post.date);
+        if (!Objects.equals(date, post.date)) return false;
+        return Objects.equals(topic, post.topic);
     }
 
     @Override
@@ -95,6 +105,7 @@ public class Post {
         result = 31 * result + (authorId != null ? authorId.hashCode() : 0);
         result = 31 * result + (text != null ? text.hashCode() : 0);
         result = 31 * result + (date != null ? date.hashCode() : 0);
+        result = 31 * result + (topic != null ? topic.hashCode() : 0);
         return result;
     }
 }

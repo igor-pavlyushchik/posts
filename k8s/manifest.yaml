@@ -113,6 +113,8 @@ items:
       name: usersapp-pod
       namespace: k8s-program
     spec:
+      strategy:
+        type: RollingUpdate
       selector:
         matchLabels:
           app: usersapp-pod
@@ -262,6 +264,8 @@ items:
       name: postsapp-pod
       namespace: k8s-program
     spec:
+      strategy:
+        type: RollingUpdate
       selector:
         matchLabels:
           app: postsapp-pod
@@ -274,7 +278,7 @@ items:
         spec:
           containers:
             - name: postsapp-container
-              image: igorpavlyushchik/posts-application:1.0.0
+              image: igorpavlyushchik/posts-application:2.0.0
               ports:
                 - containerPort: 8082
               envFrom:

@@ -25,7 +25,8 @@ GET localhost:32316/greeting
 POST localhost:32316/posts
 {
 "authorId": 1,
-"text": "Hi friends, I recently watched amazing movie at the cinema01"
+"text": "Hi friends, I recently watched amazing movie at the cinema01",
+"topic": "Movie topic"
 }
 GET localhost:32316/posts/1
 PUT localhost:32316/posts/1
@@ -34,6 +35,20 @@ PUT localhost:32316/posts/1
 }
 DELETE localhost:32316/posts/1
 
+# Module 3, Subtask 3:
+new docker image for posts application:
+docker build -t igorpavlyushchik/posts-application:2.0.0 ./
+docker push igorpavlyushchik/posts-application:2.0.0
+
+# Module 3, Subtask 4:
+Sub-task 4: Deployment history
+As you deployed a new version of your application, you can see the history of your deployments. Your task is to roll back to previous version of your deployment without changing your manifest files.
+Put in comments the solution of this task:
+
+kubectl rollout history deployment.apps/postsapp-pod -n=k8s-program
+kubectl rollout history deployment.apps/postsapp-pod --revision=1 -n=k8s-program
+kubectl rollout undo deployment.apps/postsapp-pod -n=k8s-program
+kubectl get all -n=k8s-program
 
 
 ###
