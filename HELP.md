@@ -35,6 +35,10 @@ PUT localhost:32316/posts/1
 }
 DELETE localhost:32316/posts/1
 
+Notes: StatefulSets using Secrets for db creds. Probes for users and posts dbs implemented differently.
+Users db initiated with script and spring.jpa.hibernate.ddl-auto=validate. Posts db initiated with JPA and
+spring.jpa.hibernate.ddl-auto=update.
+
 # Module 3, Subtask 3:
 new docker image for posts application:
 docker build -t igorpavlyushchik/posts-application:2.0.0 ./
